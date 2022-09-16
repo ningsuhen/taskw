@@ -585,10 +585,14 @@ class TaskWarriorShellout(TaskWarriorBase):
     def load_tasks(self, command='all'):
         """ Returns a dictionary of tasks for a list of command."""
 
+        dbs = Command.files(command)
         results = dict(
             (db, self._get_task_objects('status:%s' % db, 'export'))
-            for db in Command.files(command)
+            for db in dbs
         )
+        if command == 'all':
+            results['completed'].extend(
+                self._get_task_objects('status:deleted', 'export'))
 
         # 'waiting' tasks are returned separately from 'pending' tasks
         # Here we merge the waiting list back into the pending list.
